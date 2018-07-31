@@ -1,0 +1,7 @@
+*.pyc
+gensim_tagged
+*.npy
+*.bin
+*.pkl
+*.txt
+

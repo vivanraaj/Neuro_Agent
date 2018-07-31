@@ -1,0 +1,16 @@
+Manual_Playing/*
+runs/*
+completed_runs/*
+.ipynb_checkpoints/*
+.vscode/*
+test/*
+*.pyc
+*.py~
+*.txt~
+*.bin
+*.csv
+*.md~
+*.sh~
+*.pkl
+*.ipynb
+
