@@ -42,7 +42,7 @@ class SNES():
         self.asked = asked
         return asked
 
-    def tell(self, asked, fitnesses):
+    def tell(self, asked=None, fitnesses=None):
 
         samples = self.samples
 

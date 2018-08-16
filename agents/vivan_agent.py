@@ -85,6 +85,12 @@ class vivAgent():
 	def agent_return_weights(self):
 		return self.vw.return_weights()
 
+	def agent_return_word_seen(self):
+		return self.vw.return_words_tags_last_seen()
+
+	def agent_return_models(self): 
+		return self.vw.return_trained_word2vec()
+
 	def take_action(self, narrative, snes_weights, evaluation_flag=False):
 			
 		self.game_steps += 1
@@ -152,8 +158,7 @@ class vivAgent():
 
 	def find_objects(self, narrative):
 		#Assume an object is manipulatable if it appears as a noun in the game text
-		# each time this is run, we set the tags to None
-		self.tags = None		
+		# each time this is run, we set the tags to None		
 		tokens = nltk.word_tokenize(narrative)
 		self.tags = nltk.pos_tag(tokens)
 		# extract the all words of nouns and their tags

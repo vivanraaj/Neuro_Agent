@@ -5,7 +5,7 @@ from keras.layers import Dense, Flatten
 from keras.models import Sequential
 from keras_helper import NNWeightHelper
 import numpy as np
-
+import pickle as pkl
 
 class Vector():
 	def __init__(self):
@@ -28,6 +28,8 @@ class Vector():
 		# keeps track of how many times self.get_results_for_words are called
 		self.counter = 0
 		#self.last_tag = {}
+		#keep track of words it has seen
+		self.words_tags_last_seen = {}
 
 	def load_tags(self):
 		tag_distribution_loc = 'scholar/postag_distributions_for_scholar.txt'
@@ -133,53 +135,76 @@ class Vector():
 	def return_weights(self):
 		return self.weights
 
+	def return_words_tags_last_seen(self):
+		return self.words_tags_last_seen
+
+	def return_trained_word2vec(self):
+		# save the models seen in the game
+		with open('test_model.pkl', 'wb') as i:
+			pkl.dump(self.model, i)
+
 	def nnw_set_weights(self,weights):
 		self.nnw.set_weights(weights)
+	
 
 	# pass in the asked values
-	def transform_word_vectors(self,snes_weights,tags):
-		self.nnw_set_weights(snes_weights)
+	def transform_word_vectors(self,snes_weights=None,tags=None):
+		self.nnw.set_weights(snes_weights)
+		# self.nnw_set_weights(snes_weights)
 		# get the word vectors for the state it has seen
 		# code to show based on state, how we pass these vectors to neural network.
-		# we need to use the location instead of the word as some words dont appear in word2vec
+		# we need to use the index instead of the word as some words dont appear in word2vec
 		# code to show based on state, how we pass these vectors to neural network.
 		sentence_sequences = []
 		sentence_word_vectors = []
-		narrative_vectors = []
+		#narrative_vectors = []
+		#narrative_indexes = []
 
-		# just to keep track of errors
-		error = 0
-		#error_list = []
+		# keep track of errors
+		# error = 0
+		# error_list = []
+		# keep track of the words it has seen
+
+
 
 		# receive the words from tags code
 		for words in tags:
 			try:
 				x =(words[0].lower()+'_'+words[1])
-				#print(x)
+				# print(x)
 				# get the vector of the words first 
 				# then get the index of the word
 				# as the word might not have the vectors.
 				# word_indexes = word_vectors.ix(x)
 				# below we get the vectors of the words
-				narrative_vectors = self.model.get_vector(x)
-				sentence_word_vectors.append(narrative_vectors)
+				# narrative_vectors = self.model.get_vector(x)
+				sentence_word_vectors.append(self.model.get_vector(x))
+				if x in self.words_tags_last_seen:
+					index = self.words_tags_last_seen[x]
+				else:
+					self.words_tags_last_seen[x] = self.model.ix(x)
+				#sentence_word_vectors.append(self.model.get_vector(x))
+				# sentence_word_vectors.append(narrative_vectors)
 				# BELOW FOR DEBUG
 				# CHECK WHAT word depend on the vector
 				# check_if_correct_word = self.model.get_word(narrative_vectors)
 				# below we get the index of the words
-				narrative_indexes = self.model.ix(x)
-				sentence_sequences.append(narrative_indexes)
-				#print(word_vectors[x])
+				# narrative_indexes = self.model.ix(x)
+				sentence_sequences.append(index)
+				#sentence_sequences.append(self.model.ix(x))
+				# sentence_sequences.append(narrative_indexes)
+				# print(word_vectors[x])
 			except:
-				error += 1
+				# error += 1
 				# debug to see which word is not on the list
 				# error_list.append(x)
 				pass
 		# convert from list to array
 		# specify that its float
-		sentence_word_vectors_array = np.array(sentence_word_vectors,dtype='f')
+		#sentence_word_vectors_array = np.array(sentence_word_vectors,dtype='f')
 		#del sentence_word_vectors_array
-		changed_word2vec_vectors = self.network.predict(sentence_word_vectors_array)
+		#changed_word2vec_vectors = self.network.predict(sentence_word_vectors_array)
+		changed_word2vec_vectors = self.network.predict(np.array(sentence_word_vectors,dtype='f'))		
 		i = 0
 
 		# deletes the variables to clear memory
@@ -196,7 +221,7 @@ class Vector():
 			#desired_word = word_vectors.vocab[index] 
 			#print(desired_word)
 			#debug word2vec
-			#current_word_vector = self.model.vectors[index]
+			# current_word_vector = self.model.vectors[index]
 			#to_change = changed_word2vec_vectors[i]
 			# here it changes
 			#word2vec_vectors[index] = changed_word2vec_vectors[i]
@@ -205,9 +230,8 @@ class Vector():
 			#check_if_word_vectors_changed = self.model.vectors[index]
 			i += 1
 		#self.model.model_scholar_new_word2vec_vectors(word2vec_vectors)
-		self.model.vectors  = word2vec_vectors[:]
+		#self.model.vectors  = word2vec_vectors[:]
 		# take current vectors and use SNES to predict new vectors
 		# send the new vectors back to the word2vec file
 		# reset the array
 		# del changed_word2vec_vectors
-

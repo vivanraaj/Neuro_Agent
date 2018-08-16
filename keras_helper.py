@@ -8,7 +8,7 @@ class NNWeightHelper:
 		self.init_weights = K.get_session().run(self.model.trainable_weights)
 
 
-	def _set_trainable_weight(self, model, weights):
+	def _set_trainable_weight(self, model=None, weights=None):
 		"""Sets the weights of the model.
 
 		# Arguments
@@ -26,7 +26,7 @@ class NNWeightHelper:
 		K.batch_set_value(tuples)
 
 
-	def set_weights(self, weights):
+	def set_weights(self, weights=None):
 		new_weights = []
 		total_consumed = 0
 		for w in self.init_weights:
